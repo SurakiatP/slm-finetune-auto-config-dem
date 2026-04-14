@@ -16,7 +16,7 @@ sudo apt-get install -y rsync git python3-pip htop
 # 2. Install Python dependencies
 echo "py 🐍 Installing Python packages..."
 # We install the same specific versions as our local requirements.txt
-pip3 install "oumi[gpu]"
+pip3 install "oumi[gpu,tune]"
 pip3 install pydantic==2.12.5 scikit-learn==1.6.1 PyYAML==6.0.2 "pandas>=2.3.0"
 pip3 install fpdf2==2.8.2 matplotlib==3.10.0 seaborn==0.13.2
 
