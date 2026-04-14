@@ -72,9 +72,7 @@ class BaseConfigGenerator(ABC):
                 "logging_steps": training.logging_steps,
                 "eval_steps": training.eval_steps,
                 "eval_strategy": "steps",
-                "save_total_limit": training.save_total_limit,
                 "output_dir": "runs/{}/training/output".format(self.run_id),
-                "logging_dir": "runs/{}/training/logs".format(self.run_id),
                 "save_final_model": True
             },
             "peft": {

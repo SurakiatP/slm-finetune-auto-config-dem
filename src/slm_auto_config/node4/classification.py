@@ -9,13 +9,8 @@ class ClassificationConfigGenerator(BaseConfigGenerator):
     """
     def enrich_training_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """Add classification-specific metrics and early stopping to the training config."""
-        # Target F1 Macro for balanced performance across all document types
-        config["training"]["metric_for_best_model"] = "eval_f1_macro"
-        config["training"]["greater_is_better"] = True
-        
-        # Add Early Stopping callback if needed (handled in Oumi trainer params)
-        config["training"]["load_best_model_at_end"] = True
-        
+        # Note: Advanced metrics like 'metric_for_best_model' are removed for Oumi 0.7 compatibility.
+        # Tuning f1_macro is handled at the tuning level in tune.yaml.
         return config
 
     def get_tuning_metric(self) -> str:
