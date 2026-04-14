@@ -8,13 +8,7 @@ import logging
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 
 from slm_auto_config.node6 import get_inferencer, get_playground
-
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from slm_auto_config.utils import setup_logging
 
 def main():
     parser = argparse.ArgumentParser(description="Launch the SLM Legal Classification Playground.")

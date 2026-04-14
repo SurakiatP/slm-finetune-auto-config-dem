@@ -11,7 +11,9 @@ class ExecutorGenerator:
     def __init__(self, run_id: str):
         self.run_id = run_id
         self.script_dir = f"runs/{run_id}/scripts"
+        self.log_dir = f"runs/{run_id}/logs"
         os.makedirs(self.script_dir, exist_ok=True)
+        os.makedirs(self.log_dir, exist_ok=True)
 
     def generate_scripts(self, remote_ip: str = "HOST_IP", remote_port: str = "PORT"):
         """
@@ -21,8 +23,8 @@ class ExecutorGenerator:
         train_sh = [
             "#!/bin/bash",
             f"echo '🚀 Starting Manual Training for {self.run_id}'",
-            f"oumi train -c runs/{self.run_id}/configs/train.yaml",
-            "echo '✅ Training Complete.'"
+            f"oumi train -c runs/{self.run_id}/configs/train.yaml 2>&1 | tee runs/{self.run_id}/logs/train.log",
+            "echo '✅ Training Complete. Log saved to runs/{self.run_id}/logs/train.log'"
         ]
         self._write_script("run_train.sh", train_sh)
 
@@ -30,8 +32,8 @@ class ExecutorGenerator:
         tune_sh = [
             "#!/bin/bash",
             f"echo '🚀 Starting Auto Tuning for {self.run_id}'",
-            f"oumi tune -c runs/{self.run_id}/configs/tune.yaml",
-            "echo '✅ Tuning Complete.'"
+            f"oumi tune -c runs/{self.run_id}/configs/tune.yaml 2>&1 | tee runs/{self.run_id}/logs/tune.log",
+            "echo '✅ Tuning Complete. Log saved to runs/{self.run_id}/logs/tune.log'"
         ]
         self._write_script("run_tune.sh", tune_sh)
 
@@ -39,9 +41,8 @@ class ExecutorGenerator:
         eval_sh = [
             "#!/bin/bash",
             f"echo '🔍 Starting Evaluation for {self.run_id} on Test Set'",
-            # Note: We use the train.yaml as base but override the dataset path
-            f"oumi evaluate -c runs/{self.run_id}/configs/train.yaml --dataset_path runs/{self.run_id}/data/test.jsonl",
-            "echo '✅ Evaluation Complete.'"
+            f"oumi evaluate -c runs/{self.run_id}/configs/train.yaml --dataset_path runs/{self.run_id}/data/test.jsonl 2>&1 | tee runs/{self.run_id}/logs/eval.log",
+            "echo '✅ Evaluation Complete. Log saved to runs/{self.run_id}/logs/eval.log'"
         ]
         self._write_script("run_eval.sh", eval_sh)
 

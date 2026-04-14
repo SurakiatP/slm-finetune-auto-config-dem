@@ -8,12 +8,8 @@ import logging
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 
 from slm_auto_config.node7 import get_exporter
+from slm_auto_config.utils import setup_logging
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 def main():
@@ -39,6 +35,9 @@ def main():
     
     args = parser.parse_args()
 
+    # Setup Logging (File + Console)
+    setup_logging(args.run_id, "export")
+    
     # Discover the best adapter discovered by Node 5
     metadata_path = f"runs/{args.run_id}/evaluation/metadata.json"
     adapter_path = None

@@ -24,3 +24,22 @@ def save_jsonl(data: List[dict], path: str):
         for item in data:
             f.write(json.dumps(item, ensure_ascii=False) + '\n')
     logger.info(f"Saved {len(data)} items to {path}")
+
+def setup_logging(run_id: str, log_name: str):
+    """
+    Sets up logging to both console and a file in the run's log directory.
+    """
+    log_dir = f"runs/{run_id}/logs"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = f"{log_dir}/{log_name}.log"
+
+    # Configure root logger
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, encoding='utf-8'),
+            logging.StreamHandler()
+        ]
+    )
+    logging.info(f"Logging initialized. Log file: {log_file}")

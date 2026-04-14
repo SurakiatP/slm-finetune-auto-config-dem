@@ -1,6 +1,11 @@
 #!/bin/bash
 # setup_vast.sh - Automates the installation of dependencies for SLM Auto Config on Vast.ai
 
+# --- Add Self-Logging ---
+LOG_FILE="setup_vast.log"
+exec > >(tee -i "$LOG_FILE") 2>&1
+# ------------------------
+
 echo "🛠 Starting Vast.ai Environment Setup..."
 
 # 1. Update and install system dependencies
