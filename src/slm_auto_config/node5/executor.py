@@ -46,6 +46,21 @@ class ExecutorGenerator:
         ]
         self._write_script("run_eval.sh", eval_sh)
 
+    def generate_final_train_script(self):
+        """
+        Generates a shell script for the final training run after auto-tuning.
+        """
+        final_sh = [
+            "#!/bin/bash",
+            f"echo '🚀 Starting FINAL Training for {self.run_id} (Optimized Params)'",
+            f"oumi train -c runs/{self.run_id}/configs/train_final.yaml 2>&1 | tee runs/{self.run_id}/logs/train_final.log",
+            "",
+            "echo '🔍 Running FINAL Evaluation on Test Set...'",
+            f"oumi evaluate -c runs/{self.run_id}/configs/train_final.yaml --dataset_path runs/{self.run_id}/data/test.jsonl 2>&1 | tee runs/{self.run_id}/logs/eval_final.log",
+            "echo '✅ Final Pipeline Step Complete. Review results in runs/{self.run_id}/evaluation/'"
+        ]
+        self._write_script("run_final_train.sh", final_sh)
+
         # 4. sync_to_vast.sh (Helper for Local -> Remote)
         sync_to = [
             "#!/bin/bash",

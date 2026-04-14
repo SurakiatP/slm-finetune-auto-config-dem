@@ -19,9 +19,12 @@ class MetricsAnalyser:
         self.eval_dir = f"{self.base_dir}/evaluation"
         os.makedirs(self.eval_dir, exist_ok=True)
 
-    def analyse_tuning_results(self) -> Node5Metadata:
+    def analyse_tuning_results(self, direction: str = "minimize") -> Node5Metadata:
         """
         Parses the Oumi Optuna results CSV to find the best hyperparameter set.
+        
+        Args:
+            direction: 'minimize' (for Loss) or 'maximize' (for Accuracy/F1).
         """
         csv_path = f"{self.base_dir}/training/output/trials_results.csv"
         if not os.path.exists(csv_path):
@@ -30,25 +33,34 @@ class MetricsAnalyser:
 
         try:
             df = pd.read_csv(csv_path)
-            # Standard Optuna/Oumi columns: number, state, value, params_...
+            # Remove rows where 'value' is NaN
+            df = df.dropna(subset=['value'])
+            
+            if df.empty:
+                logger.warning("Trials results CSV is empty or has no valid values.")
+                return Node5Metadata()
+
             trials = []
             for _, row in df.iterrows():
                 params = {k.replace('params_', ''): v for k, v in row.items() if k.startswith('params_')}
                 trials.append(TrialResult(
                     trial_id=int(row['number']),
                     params=params,
-                    metric_value=float(row['value']) if pd.notnull(row['value']) else 0.0,
+                    metric_value=float(row['value']),
                     status=row['state']
                 ))
             
-            # Identify best trial (assuming 'maximize' as per our Node 4 setup)
-            best_row = df.loc[df['value'].idxmax()]
+            # Identify best trial based on direction
+            if direction.lower() == "minimize":
+                best_row = df.loc[df['value'].idxmin()]
+            else:
+                best_row = df.loc[df['value'].idxmax()]
+                
             best_trial_id = int(best_row['number'])
             
             metadata = Node5Metadata(
                 best_trial_id=best_trial_id,
-                # Oumi trial output follows trial_{id} pattern
-                best_model_path=f"runs/{self.run_id}/training/output/trial_{best_trial_id}/checkpoint-best",
+                best_model_path=f"runs/{self.run_id}/training/output/trial_{best_trial_id}",
                 all_trials=trials
             )
             
