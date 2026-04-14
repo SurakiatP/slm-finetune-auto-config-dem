@@ -1,0 +1,9 @@
+pydantic==2.12.5
+scikit-learn==1.6.1
+PyYAML==6.0.2
+pandas==2.2.3
+fpdf2==2.8.2
+matplotlib==3.10.0
+seaborn==0.13.2
+gradio==5.15.0
+optimum[onnxruntime]==1.24.0

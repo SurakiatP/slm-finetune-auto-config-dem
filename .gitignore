@@ -1,0 +1,54 @@
+# ----------------------------------------------------------------------------
+# Python
+# ----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.python-version
+
+# ----------------------------------------------------------------------------
+# SLM Auto Config - Critical Local Data
+# ----------------------------------------------------------------------------
+# We ignore the 'runs' directory because it contains large weights/checkpoints.
+runs/
+# We ignore the raw synthetic dataset as it might be large/sensitive.
+synthetic_data.json
+
+# ----------------------------------------------------------------------------
+# Environments & Tools
+# ----------------------------------------------------------------------------
+.env
+.venv
+env/
+venv/
+ENV/
+gradio_cached_examples/
+.idea/
+.vscode/
+
+# ----------------------------------------------------------------------------
+# OS specific
+# ----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+
+
+*.md
