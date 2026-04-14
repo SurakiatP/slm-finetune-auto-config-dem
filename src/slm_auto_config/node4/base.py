@@ -121,14 +121,14 @@ class BaseConfigGenerator(ABC):
         tuning_config = {
             "model": template_data.get("model"),
             "data": template_data.get("data"),
-            "training": template_data.get("training"),
-            "peft": template_data.get("peft"),
             "tuning": {
                 "n_trials": 10,
                 "tuner_type": "optuna",
                 "tuner_sampler": "TPE",
                 "evaluation_metrics": [self.get_tuning_metric()],
                 "evaluation_direction": [self.get_tuning_direction()],
+                "fixed_training_params": template_data.get("training"),
+                "fixed_peft_params": template_data.get("peft"),
                 "tunable_training_params": tunable_training,
                 "tunable_peft_params": tunable_peft,
                 "tuning_study_name": "tuning_{}".format(self.run_id)
