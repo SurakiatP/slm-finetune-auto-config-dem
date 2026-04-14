@@ -7,7 +7,7 @@ class ModelParams(BaseModel):
     trust_remote_code: bool = True
 
 class PeftParams(BaseModel):
-    qlora: bool = True
+    q_lora: bool = True
     lora_r: int = 8
     lora_alpha: int = 16
     lora_dropout: float = 0.05

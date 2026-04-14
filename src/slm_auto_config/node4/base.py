@@ -76,7 +76,7 @@ class BaseConfigGenerator(ABC):
                 "save_final_model": True
             },
             "peft": {
-                "qlora": peft.qlora,
+                "q_lora": peft.q_lora,
                 "lora_r": peft.lora_r,
                 "lora_alpha": peft.lora_alpha,
                 "lora_dropout": peft.lora_dropout,
