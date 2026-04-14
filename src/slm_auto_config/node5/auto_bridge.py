@@ -125,18 +125,17 @@ class AutoBridge:
         eval_config_path = f"runs/{self.run_id}/configs/eval.yaml"
         eval_config_dict = {
             "model": {
-                "model_name": f"runs/{self.run_id}/training/final_output", # Use the newly trained model
+                "model_name": f"runs/{self.run_id}/training/final_output", 
                 "trust_remote_code": model.trust_remote_code,
             },
             "tasks": [
                 {
-                    "task_name": "text_sft",
-                    "datasets": [
-                        {
-                            "dataset_name": "text_sft",
-                            "dataset_path": f"runs/{self.run_id}/data/test.jsonl"
-                        }
-                    ]
+                    "evaluation_backend": "native", # Required for Oumi 0.7
+                    "task_name": "final_evaluation",
+                    "dataset": {
+                        "dataset_name": "text_sft",
+                        "dataset_path": f"runs/{self.run_id}/data/test.jsonl"
+                    }
                 }
             ],
             "generation": {
