@@ -121,33 +121,26 @@ class AutoBridge:
         # Enrich for task-specific (classification)
         final_config = generator.enrich_training_config(config_dict)
         
-        # 7. Generate EVAL YAML (Strict Schema for Oumi 0.7 Evaluation)
-        eval_config_path = f"runs/{self.run_id}/configs/eval.yaml"
-        eval_config_dict = {
+        # 7. Generate INFER YAML (Stable Schema for Oumi 0.7 Inference)
+        infer_config_path = f"runs/{self.run_id}/configs/infer.yaml"
+        infer_config_dict = {
             "model": {
                 "model_name": f"runs/{self.run_id}/training/final_output", 
                 "trust_remote_code": model.trust_remote_code,
             },
-            "tasks": [
-                {
-                    "evaluation_backend": "native", # Required for Oumi 0.7
-                    "task_name": "final_evaluation",
-                    "dataset": {
-                        "dataset_name": "text_sft",
-                        "dataset_path": f"runs/{self.run_id}/data/test.jsonl"
-                    }
-                }
-            ],
             "generation": {
                 "max_new_tokens": 128,
                 "batch_size": 1
-            }
+            },
+            "inference_engine": "NATIVE",
+            "input_path": f"runs/{self.run_id}/data/test.jsonl",
+            "output_path": f"runs/{self.run_id}/evaluation/predictions.jsonl"
         }
         
-        with open(eval_config_path, 'w', encoding='utf-8') as f:
-            yaml.dump(eval_config_dict, f, sort_keys=False)
+        with open(infer_config_path, 'w', encoding='utf-8') as f:
+            yaml.dump(infer_config_dict, f, sort_keys=False)
             
-        logger.info(f"✅ EVAL configuration generated at: {eval_config_path}")
+        logger.info(f"✅ INFER configuration generated at: {infer_config_path}")
         
         # 8. Generate FINAL Script
         self.executor.generate_final_train_script()

@@ -55,8 +55,11 @@ class ExecutorGenerator:
             f"echo '🚀 Starting FINAL Training for {self.run_id} (Optimized Params)'",
             f"oumi train -c runs/{self.run_id}/configs/train_final.yaml 2>&1 | tee runs/{self.run_id}/logs/train_final.log",
             "",
-            "echo '🔍 Running FINAL Evaluation on Test Set...'",
-            f"oumi evaluate -c runs/{self.run_id}/configs/eval.yaml 2>&1 | tee runs/{self.run_id}/logs/eval_final.log",
+            "echo '🔍 Running FINAL Inference on Test Set (Generating Predictions)...'",
+            f"oumi infer -c runs/{self.run_id}/configs/infer.yaml 2>&1 | tee runs/{self.run_id}/logs/infer_final.log",
+            "",
+            "echo '📊 Calculating Final Metrics (Node 7)...'",
+            f"python src/slm_auto_config/node7/run_eval.py {self.run_id}",
             "echo '✅ Final Pipeline Step Complete. Review results in runs/{self.run_id}/evaluation/'"
         ]
         self._write_script("run_final_train.sh", final_sh)
