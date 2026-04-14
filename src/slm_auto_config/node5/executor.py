@@ -56,7 +56,7 @@ class ExecutorGenerator:
             f"oumi train -c runs/{self.run_id}/configs/train_final.yaml 2>&1 | tee runs/{self.run_id}/logs/train_final.log",
             "",
             "echo '🔍 Running FINAL Evaluation on Test Set...'",
-            f"oumi evaluate -c runs/{self.run_id}/configs/train_final.yaml --dataset_path runs/{self.run_id}/data/test.jsonl 2>&1 | tee runs/{self.run_id}/logs/eval_final.log",
+            f"oumi evaluate -c runs/{self.run_id}/configs/eval.yaml 2>&1 | tee runs/{self.run_id}/logs/eval_final.log",
             "echo '✅ Final Pipeline Step Complete. Review results in runs/{self.run_id}/evaluation/'"
         ]
         self._write_script("run_final_train.sh", final_sh)

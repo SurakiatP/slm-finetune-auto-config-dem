@@ -121,12 +121,34 @@ class AutoBridge:
         # Enrich for task-specific (classification)
         final_config = generator.enrich_training_config(config_dict)
         
-        with open(final_config_path, 'w', encoding='utf-8') as f:
-            yaml.dump(final_config, f, sort_keys=False)
-            
-        logger.info(f"✅ FINAL configuration generated at: {final_config_path}")
+        # 7. Generate EVAL YAML (Strict Schema for Oumi 0.7 Evaluation)
+        eval_config_path = f"runs/{self.run_id}/configs/eval.yaml"
+        eval_config_dict = {
+            "model": {
+                "model_name": f"runs/{self.run_id}/training/final_output", # Use the newly trained model
+                "trust_remote_code": model.trust_remote_code,
+            },
+            "tasks": [
+                {
+                    "task_name": "text_sft",
+                    "dataset": {
+                        "dataset_name": "text_sft",
+                        "dataset_path": f"runs/{self.run_id}/data/test.jsonl"
+                    }
+                }
+            ],
+            "generation": {
+                "max_new_tokens": 128,
+                "batch_size": 1
+            }
+        }
         
-        # 6. Generate FINAL Script
+        with open(eval_config_path, 'w', encoding='utf-8') as f:
+            yaml.dump(eval_config_dict, f, sort_keys=False)
+            
+        logger.info(f"✅ EVAL configuration generated at: {eval_config_path}")
+        
+        # 8. Generate FINAL Script
         self.executor.generate_final_train_script()
         logger.info(f"✅ FINAL training script generated in: {self.executor.script_dir}")
         
