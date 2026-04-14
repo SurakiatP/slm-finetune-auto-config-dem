@@ -104,10 +104,10 @@ class BaseConfigGenerator(ABC):
         for name, space in search_space.params.items():
             param_config = {"type": space.type}
             if space.type == "categorical":
-                param_config["values"] = space.values
+                param_config["choices"] = space.values
             else:
-                param_config["min"] = space.min
-                param_config["max"] = space.max
+                param_config["low"] = space.min
+                param_config["high"] = space.max
             
             if name in ["learning_rate", "weight_decay", "warmup_ratio", "num_train_epochs", "per_device_train_batch_size"]:
                 tunable_training[name] = param_config
@@ -122,7 +122,7 @@ class BaseConfigGenerator(ABC):
             "tuning": {
                 "n_trials": 10,
                 "tuner_type": "OPTUNA",
-                "tuner_sampler": "TPE",
+                "tuner_sampler": "TPESampler",
                 "evaluation_metrics": [self.get_tuning_metric()],
                 "evaluation_direction": [self.get_tuning_direction()],
                 "fixed_training_params": template_data.get("training"),
