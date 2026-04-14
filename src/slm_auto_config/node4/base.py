@@ -123,7 +123,7 @@ class BaseConfigGenerator(ABC):
             "data": template_data.get("data"),
             "tuning": {
                 "n_trials": 10,
-                "tuner_type": "optuna",
+                "tuner_type": "OPTUNA",
                 "tuner_sampler": "TPE",
                 "evaluation_metrics": [self.get_tuning_metric()],
                 "evaluation_direction": [self.get_tuning_direction()],
