@@ -132,7 +132,7 @@ class AutoBridge:
                 "max_new_tokens": 128,
                 "batch_size": 1
             },
-            "inference_engine": "NATIVE",
+            "engine": "NATIVE",
             "input_path": f"runs/{self.run_id}/data/test.jsonl",
             "output_path": f"runs/{self.run_id}/evaluation/predictions.jsonl"
         }
