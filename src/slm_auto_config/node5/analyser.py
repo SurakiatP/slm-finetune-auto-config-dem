@@ -22,13 +22,23 @@ class MetricsAnalyser:
     def analyse_tuning_results(self, direction: str = "minimize") -> Node5Metadata:
         """
         Parses the Oumi Optuna results CSV to find the best hyperparameter set.
-        
-        Args:
-            direction: 'minimize' (for Loss) or 'maximize' (for Accuracy/F1).
         """
-        csv_path = f"{self.base_dir}/training/output/trials_results.csv"
-        if not os.path.exists(csv_path):
-            logger.warning(f"Trials results not found at {csv_path}")
+        # Try multiple potential paths for trials_results.csv
+        potential_paths = [
+            f"{self.base_dir}/training/output/trials_results.csv",
+            "output/trials_results.csv",  # Oumi's default if not specified
+            f"runs/{self.run_id}/output/trials_results.csv"
+        ]
+        
+        csv_path = None
+        for p in potential_paths:
+            if os.path.exists(p):
+                csv_path = p
+                logger.info(f"📍 Found tuning results at: {p}")
+                break
+
+        if not csv_path:
+            logger.warning(f"Trials results not found in potential paths: {potential_paths}")
             return Node5Metadata()
 
         try:

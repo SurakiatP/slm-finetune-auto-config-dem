@@ -77,15 +77,20 @@ def main():
     # PHASE 2: AUTO-BRIDGE (AFTER TUNING)
     # ---------------------------------------------------------
     print("\n--- [Phase 2] Checking for Tuning Results to Bridge ---")
-    csv_path = f"runs/{run_id}/training/output/trials_results.csv"
-    if os.path.exists(csv_path):
+    potential_csv_paths = [
+        f"runs/{run_id}/training/output/trials_results.csv",
+        "output/trials_results.csv",
+        f"runs/{run_id}/output/trials_results.csv"
+    ]
+    csv_path = next((p for p in potential_csv_paths if os.path.exists(p)), None)
+
+    if csv_path:
         from slm_auto_config.node5.auto_bridge import AutoBridge
         bridge = AutoBridge(run_id=run_id, task_type="classification", model_name=model_name)
-        # Assuming we optimized for eval_loss (minimize)
         bridge.bridge_to_final_run(direction="minimize", final_epochs=5)
         print("Done Phase 2 Complete. Final training scripts ready.")
     else:
-        print("Tuning results not found locally yet. Perform 'sync_from_vast.sh' first to enable Auto-Bridge.")
+        print("Tuning results not found locally. Perform 'sync_from_vast.sh' first OR ensure tuning finished on this machine.")
 
 if __name__ == "__main__":
     main()
