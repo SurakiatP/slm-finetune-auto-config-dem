@@ -43,44 +43,45 @@ def parse_model_response(response_str: str) -> str:
 def run_evaluation(run_id: str):
     logger.info(f"📊 Starting Node 7 Evaluation for run: {run_id}")
     
-    test_path = f"runs/{run_id}/data/test.jsonl"
     preds_path = f"runs/{run_id}/evaluation/predictions.jsonl"
     eval_dir = f"runs/{run_id}/evaluation"
     
-    if not os.path.exists(test_path) or not os.path.exists(preds_path):
-        logger.error(f"Missing files: test={os.path.exists(test_path)}, preds={os.path.exists(preds_path)}")
+    if not os.path.exists(preds_path):
+        logger.error(f"Missing file: preds={os.path.exists(preds_path)}")
         return
     
-    # 1. Load Ground Truth
     ground_truth = []
-    with open(test_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            data = json.loads(line)
-            # Find the label in the messages
-            # For SFT format: messages: [{"role": "user", ...}, {"role": "assistant", "content": "{\"label\": \"...\"}"}]
-            for msg in data.get("messages", []):
-                if msg["role"] == "assistant":
-                    content = msg["content"]
-                    try:
-                        parsed = json.loads(content)
-                        ground_truth.append(parsed.get("label", "unknown"))
-                    except:
-                        ground_truth.append("unknown")
-    
-    # 2. Load Predictions
     predictions = []
+    
+    # Oumi 0.7 Inference output is a JSONL of Conversations
     with open(preds_path, 'r', encoding='utf-8') as f:
         for line in f:
-            data = json.loads(line)
-            raw_response = data.get("response", data.get("generated_text", ""))
-            predictions.append(parse_model_response(raw_response))
-            
-    # Match lengths
-    if len(ground_truth) != len(predictions):
-        logger.warning(f"Length mismatch: GT={len(ground_truth)}, Preds={len(predictions)}. Truncating to minimum.")
-        min_len = min(len(ground_truth), len(predictions))
-        ground_truth = ground_truth[:min_len]
-        predictions = predictions[:min_len]
+            try:
+                data = json.loads(line)
+                msgs = data.get("messages", [])
+                
+                # In Oumi Inference on a labeled dataset:
+                # msgs[0] = User Prompt
+                # msgs[1] = Ground Truth (Assistant)
+                # msgs[2] = Model Prediction (Assistant)
+                
+                # Extract Ground Truth (usually index 1)
+                gt_val = "unknown"
+                for msg in msgs[1:-1]: # Look in between prompt and last response
+                    if msg["role"] == "assistant":
+                        gt_val = parse_model_response(msg["content"])
+                        break
+                ground_truth.append(gt_val)
+                
+                # Extract Prediction (the very last message)
+                if len(msgs) > 0 and msgs[-1]["role"] == "assistant":
+                    pred_val = parse_model_response(msgs[-1]["content"])
+                    predictions.append(pred_val)
+                else:
+                    predictions.append("unknown")
+                    
+            except Exception as e:
+                logger.warning(f"Failed to parse line: {e}")
         
     # 3. Calculate Metrics
     labels = sorted(list(set(ground_truth)))
