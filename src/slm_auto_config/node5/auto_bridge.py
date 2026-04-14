@@ -131,10 +131,12 @@ class AutoBridge:
             "tasks": [
                 {
                     "task_name": "text_sft",
-                    "dataset": {
-                        "dataset_name": "text_sft",
-                        "dataset_path": f"runs/{self.run_id}/data/test.jsonl"
-                    }
+                    "datasets": [
+                        {
+                            "dataset_name": "text_sft",
+                            "dataset_path": f"runs/{self.run_id}/data/test.jsonl"
+                        }
+                    ]
                 }
             ],
             "generation": {
