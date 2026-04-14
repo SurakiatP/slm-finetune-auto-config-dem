@@ -28,21 +28,35 @@ class BaseConfigGenerator(ABC):
     def generate_training_yaml(self, model: ModelParams, peft: PeftParams, training: TrainingParams) -> str:
         """Generates a standard Oumi train.yaml for manual training."""
         config = {
-            "model_name": model.model_name,
-            "model_max_length": model.model_max_length,
-            "trust_remote_code": model.trust_remote_code,
+            "model": {
+                "model_name": model.model_name,
+                "model_max_length": model.model_max_length,
+                "trust_remote_code": model.trust_remote_code,
+            },
             "data": {
-                "train_dataset": {
-                    "dataset_name": "text_sft",
-                    "dataset_path": "runs/{}/data/train.jsonl".format(self.run_id),
+                "train": {
+                    "datasets": [
+                        {
+                            "dataset_name": "text_sft",
+                            "dataset_path": "runs/{}/data/train.jsonl".format(self.run_id),
+                        }
+                    ]
                 },
-                "test_dataset": {
-                    "dataset_name": "text_sft",
-                    "dataset_path": "runs/{}/data/test.jsonl".format(self.run_id),
+                "test": {
+                    "datasets": [
+                        {
+                            "dataset_name": "text_sft",
+                            "dataset_path": "runs/{}/data/test.jsonl".format(self.run_id),
+                        }
+                    ]
                 },
-                "validation_dataset": {
-                    "dataset_name": "text_sft",
-                    "dataset_path": "runs/{}/data/validation.jsonl".format(self.run_id),
+                "validation": {
+                    "datasets": [
+                        {
+                            "dataset_name": "text_sft",
+                            "dataset_path": "runs/{}/data/validation.jsonl".format(self.run_id),
+                        }
+                    ]
                 }
             },
             "training": {
@@ -86,8 +100,9 @@ class BaseConfigGenerator(ABC):
         with open(training_template, 'r', encoding='utf-8') as f:
             template_data = yaml.safe_load(f)
 
-        # Build search space for Oumi Tuning
-        oumi_search_space = {}
+        # Build search spaces for Oumi Tuning (Split between training and peft)
+        tunable_training = {}
+        tunable_peft = {}
         for name, space in search_space.params.items():
             param_config = {"type": space.type}
             if space.type == "categorical":
@@ -95,18 +110,28 @@ class BaseConfigGenerator(ABC):
             else:
                 param_config["min"] = space.min
                 param_config["max"] = space.max
-            oumi_search_space[name] = param_config
+            
+            if name in ["learning_rate", "weight_decay", "warmup_ratio", "num_train_epochs", "per_device_train_batch_size"]:
+                tunable_training[name] = param_config
+            elif name.startswith("lora_"):
+                tunable_peft[name] = param_config
+            else:
+                tunable_training[name] = param_config
 
         tuning_config = {
-            "project_name": "tuning_{}".format(self.run_id),
-            "study_name": "tuning_{}".format(self.run_id),
-            "base_training_config": template_data,
+            "model": template_data.get("model"),
+            "data": template_data.get("data"),
+            "training": template_data.get("training"),
+            "peft": template_data.get("peft"),
             "tuning": {
-                "num_trials": 10,
-                "sampler": "TPE",
-                "direction": self.get_tuning_direction(),
-                "metric": self.get_tuning_metric(),
-                "search_space": oumi_search_space
+                "n_trials": 10,
+                "tuner_type": "optuna",
+                "tuner_sampler": "TPE",
+                "evaluation_metrics": [self.get_tuning_metric()],
+                "evaluation_direction": [self.get_tuning_direction()],
+                "tunable_training_params": tunable_training,
+                "tunable_peft_params": tunable_peft,
+                "tuning_study_name": "tuning_{}".format(self.run_id)
             }
         }
 
