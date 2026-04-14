@@ -14,11 +14,11 @@ class ClassificationConfigGenerator(BaseConfigGenerator):
         return config
 
     def get_tuning_metric(self) -> str:
-        """Optuna will target Macro F1."""
-        return "eval_f1_macro"
+        """Optuna will target eval_loss."""
+        return "eval_loss"
 
     def get_tuning_direction(self) -> str:
-        return "maximize"
+        return "minimize"
 
     def get_default_search_space(self) -> SearchSpace:
         """Returns a robust search space for classification SFT."""
