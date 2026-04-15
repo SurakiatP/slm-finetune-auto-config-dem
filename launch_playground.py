@@ -14,6 +14,7 @@ from slm_auto_config.utils import setup_logging
 logger = logging.getLogger(__name__)
 
 def main():
+    setup_logging()
     parser = argparse.ArgumentParser(description="Launch the SLM Legal Classification Playground.")
     parser.add_argument(
         "--run_id", 
@@ -36,11 +37,15 @@ def main():
     
     args = parser.parse_args()
     
-    # Path to find the best adapter discovered by Node 5
+    # Logic: Prioritize Final Output > Metadata Best Trial > Base Model
+    final_output_path = f"runs/{args.run_id}/training/final_output"
     metadata_path = f"runs/{args.run_id}/evaluation/metadata.json"
     adapter_path = None
     
-    if os.path.exists(metadata_path):
+    if os.path.exists(final_output_path) and os.path.exists(os.path.join(final_output_path, "adapter_config.json")):
+        adapter_path = final_output_path
+        logger.info(f"🚀 Found Final Trained Model at: {adapter_path}. Prioritizing this.")
+    elif os.path.exists(metadata_path):
         try:
             with open(metadata_path, 'r', encoding='utf-8') as f:
                 metadata = json.load(f)
@@ -49,8 +54,9 @@ def main():
                     logger.info(f"✅ Found best model metadata. Loading adapter from: {adapter_path}")
         except Exception as e:
             logger.error(f"❌ Failed to parse metadata.json: {e}")
-    else:
-        logger.warning(f"⚠️ No metadata.json found at {metadata_path}. Running with base model only.")
+    
+    if not adapter_path:
+        logger.warning(f"⚠️ No suitable adapter found for {args.run_id}. Running with base model only.")
 
     # Initialization and Launch
     try:
