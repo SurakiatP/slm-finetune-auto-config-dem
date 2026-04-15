@@ -42,22 +42,24 @@ class ClassificationInferencer(BaseInferencer):
 
     def predict(self, text: str, **kwargs) -> InferenceResponse:
         """
-        Runs classification inference using Chat Templates for better instruction following.
+        Runs classification inference using the EXACT prompt format from training.
         """
         role = kwargs.get("role", "You are an expert document classifier.")
         task = kwargs.get("task", "Your task is to identify the most appropriate category for the provided text.")
         labels_list = kwargs.get("labels_list", [])
         
         labels_str = ", ".join(labels_list)
-        instructions = (
-            f"{task} The available categories are: {labels_str}. "
-            f"Return the result in a valid JSON format with a single 'label' key."
+        
+        # 🎯 MATCH TRAINING FORMAT: Combine role, task, and text into ONE User message.
+        # This matches the structure in train.jsonl
+        full_user_content = (
+            f"{role} {task} The available categories are: {labels_str}. "
+            f"Return the result in a valid JSON format with a single 'label' key.\n\n"
+            f"Text: {text}"
         )
         
-        # 1. Apply Chat Template (Crucial for Fine-Tuned Instruct models)
         messages = [
-            {"role": "system", "content": role},
-            {"role": "user", "content": f"{instructions}\n\nText: {text}"}
+            {"role": "user", "content": full_user_content}
         ]
         
         full_prompt = self.tokenizer.apply_chat_template(
