@@ -13,15 +13,35 @@ from slm_auto_config.node5.models import EvaluationMetrics, LabelMetric
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def clean_label(label: str) -> str:
+    """Standardizes label naming to match canonical categories."""
+    if not label: 
+        return "unknown"
+    
+    label = label.strip().lower()
+    
+    # Mapping logic for legal categories
+    if "nda" in label or "ความลับ" in label:
+        return "ข้อตกลงรักษาความลับ (NDA)"
+    if "จ้างงาน" in label:
+        return "สัญญาจ้างงาน"
+    if "เช่า" in label:
+        return "สัญญาเช่า"
+    if "จัดซื้อ" in label or "จัดจ้าง" in label:
+        return "เอกสารจัดซื้อจัดจ้าง"
+        
+    return "unknown"
+
 def parse_model_response(response_str: str) -> str:
     """
     Tries to extract the 'label' from the model's response string.
     Handles raw JSON or plain text matches.
     """
     response_str = response_str.strip()
+    extracted = "unknown"
+    
     # Try parsing as JSON first
     try:
-        # Simple cleanup for common hallucination patterns
         if "```json" in response_str:
             response_str = response_str.split("```json")[1].split("```")[0].strip()
         elif "{" in response_str:
@@ -29,16 +49,15 @@ def parse_model_response(response_str: str) -> str:
             
         data = json.loads(response_str)
         if isinstance(data, dict) and "label" in data:
-            return str(data["label"]).strip()
+            extracted = str(data["label"])
     except:
-        pass
-    
-    # Fallback: line based extraction
-    for line in response_str.split("\n"):
-        if '"label":' in line:
-            return line.split('"label":')[-1].replace('"', '').replace(',', '').strip()
+        # Fallback: line based extraction
+        for line in response_str.split("\n"):
+            if '"label":' in line:
+                extracted = line.split('"label":')[-1].replace('"', '').replace(',', '').strip()
+                break
             
-    return "unknown"
+    return clean_label(extracted)
 
 def run_evaluation(run_id: str):
     logger.info(f"📊 Starting Node 7 Evaluation for run: {run_id}")
