@@ -10,6 +10,9 @@ sys.path.append(os.path.join(os.getcwd(), 'src'))
 from slm_auto_config.node6 import get_inferencer, get_playground
 from slm_auto_config.utils import setup_logging
 
+# Initialize Logging
+logger = logging.getLogger(__name__)
+
 def main():
     parser = argparse.ArgumentParser(description="Launch the SLM Legal Classification Playground.")
     parser.add_argument(
