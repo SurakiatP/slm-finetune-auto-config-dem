@@ -30,25 +30,49 @@ class ClassificationInferencer(BaseInferencer):
             self.model = PeftModel.from_pretrained(self.model, adapter_path)
         self.parser = ResponseParser()
 
+    def _clean_label(self, label: str) -> str:
+        """Standardizes label naming (Internal helper)."""
+        if not label: return "unknown"
+        label = label.strip().lower()
+        if "nda" in label or "ความลับ" in label: return "ข้อตกลงรักษาความลับ (NDA)"
+        if "จ้างงาน" in label: return "สัญญาจ้างงาน"
+        if "เช่า" in label: return "สัญญาเช่า"
+        if "จัดซื้อ" in label or "จัดจ้าง" in label: return "เอกสารจัดซื้อจัดจ้าง"
+        return "unknown"
+
     def predict(self, text: str, **kwargs) -> InferenceResponse:
         """
-        Runs classification inference.
-        Expects 'role', 'task', and 'labels_list' in kwargs.
+        Runs classification inference using Chat Templates for better instruction following.
         """
         role = kwargs.get("role", "You are an expert document classifier.")
-        task = kwargs.get("task", "Your task is to identify the most appropriate category.")
+        task = kwargs.get("task", "Your task is to identify the most appropriate category for the provided text.")
         labels_list = kwargs.get("labels_list", [])
         
         labels_str = ", ".join(labels_list)
-        prompt_prefix = f"{role} {task} The available categories are: {labels_str}. Return the result in a valid JSON format with a single 'label' key."
-        full_prompt = f"{prompt_prefix}\n\nText: {text}"
+        instructions = (
+            f"{task} The available categories are: {labels_str}. "
+            f"Return the result in a valid JSON format with a single 'label' key."
+        )
+        
+        # 1. Apply Chat Template (Crucial for Fine-Tuned Instruct models)
+        messages = [
+            {"role": "system", "content": role},
+            {"role": "user", "content": f"{instructions}\n\nText: {text}"}
+        ]
+        
+        full_prompt = self.tokenizer.apply_chat_template(
+            messages, 
+            tokenize=False, 
+            add_generation_prompt=True
+        )
         
         inputs = self.tokenizer(full_prompt, return_tensors="pt").to(self.model.device)
         
+        # 2. Generate
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
-                max_new_tokens=100,
+                max_new_tokens=150,
                 temperature=0.1,
                 do_sample=True,
                 return_dict_in_generate=True,
@@ -60,7 +84,7 @@ class ClassificationInferencer(BaseInferencer):
         generated_tokens = outputs.sequences[0][input_len:]
         raw_output = self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
         
-        # Calculate Confidence
+        # 3. Calculate Confidence
         try:
             transition_scores = self.model.compute_transition_scores(
                 outputs.sequences, 
@@ -73,10 +97,15 @@ class ClassificationInferencer(BaseInferencer):
             logger.warning(f"Confidence score calculation failed: {e}")
             avg_confidence = 0.0
 
+        # 4. Parse & Normalize
         parsed_data = self.parser.parse_classification_output(raw_output)
+        predicted_label = parsed_data.get("label", "unknown")
+        
+        # Apply normalization (mapping "NDA" -> "ข้อตกลงรักษาความลับ (NDA)")
+        normalized_label = self._clean_label(predicted_label)
         
         return InferenceResponse(
-            label=parsed_data.get("label", "unknown"),
+            label=normalized_label,
             confidence=avg_confidence,
             raw_output=raw_output
         )
