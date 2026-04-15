@@ -18,7 +18,7 @@ echo "py 🐍 Installing Python packages..."
 # We install the same specific versions as our local requirements.txt
 pip3 install "oumi[gpu,tune]"
 pip3 install pydantic==2.12.5 scikit-learn==1.6.1 PyYAML==6.0.2 "pandas>=2.3.0"
-pip3 install fpdf2==2.8.2 matplotlib==3.10.0 seaborn==0.13.2
+pip3 install fpdf2==2.8.2 matplotlib==3.10.0 seaborn==0.13.2 gradio
 
 # 3. Create project structure on remote
 mkdir -p ~/slm-auto-config/runs
