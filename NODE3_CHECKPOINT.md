@@ -1,10 +1,10 @@
 # NODE 3: SPLIT DATA - CHECKPOINT
 
 **Status**: `DONE` (Implemented & Refactored)  
-**Last Updated**: 2026-04-14
+**Last Updated**: 2026-04-16
 
 ## 🎯 Purpose
-Node 3 ทำหน้าที่รับข้อมูลจาก Node 2 (Synthetic Data) และ Node 1 (Seed Data) เพื่อทำการแบ่งข้อมูลเป็นชุด Train, Validation, และ Test พร้อมทั้งแปลงให้อยู่ในรูปแบบ Oumi `text_sft` (Conversation JSONL) เพื่อเตรียมพร้อมสำหรับการ Fine-tuning ใน Node ต่อไป
+Node 3 ทำหน้าที่รับข้อมูลจาก Node 2 (Synthetic Data) และ Node 1 (Seed Data) เพื่อทำการแบ่งข้อมูลเป็นชุด Train, Validation, และ Test พร้อมทั้งแปลงให้อยู่ในรูปแบบ Oumi `text_sft` (Conversation JSONL) โดยใช้มาตรฐาน **Chat Template** (System/User/Assistant) เพื่อประสิทธิภาพสูงสุดของโมเดล Instruct
 
 ## 🛠 Architecture & Capabilities
 
@@ -16,14 +16,14 @@ Node 3 ทำหน้าที่รับข้อมูลจาก Node 2 (S
 1.  **Dynamic Label Detection**: ระบบสแกนหา Labels จากข้อมูลจริงโดยอัตโนมัติ ทำให้สคริปต์เป็น **Domain-Agnostic** (รองรับทุกโดเมนข้อมูล)
 2.  **Stratified Splitting**: ใช้ `scikit-learn` เพื่อรักษาความสมดุลของหมวดหมู่ (Label Balance) ในทุกๆ ชุดข้อมูล (Train/Val/Test)
 3.  **Seed Data Priority**: ปฏิบัติตามกฎ `AGENT_RULES.md` โดยใช้ Seed Data ที่เป็น Ground Truth สำหรับชุด Validation และ Test เป็นลำดับแรก
-4.  **English Instruction Template**: ใช้โครงสร้าง Prompt ที่เป็นสากล: `[role]`, `[task]`, และ `[possible labels]`
+4.  **Standard Chat Template**: เลิกใช้การยุบรวม Prompt (Flattening) และเปลี่ยนมาใช้แยกบทบาท: `system` (Persona), `user` (Instruction + Content), และ `assistant` (Target)
 
 ## 📂 File Structure
 ```text
 src/slm_auto_config/
 ├── node3/
 │   ├── base.py           # Abstract Class สำหรับ Splitter ทุกประเภท
-│   ├── classification.py # Logic เฉพาะสำหรับงาน Classification
+│   ├── classification.py # Logic เฉพาะสำหรับงาน Classification (Corrected Template)
 │   ├── factory.py        # ตัวเลือกว่าจะใช้ Splitter ตัวไหน (Task Router)
 │   ├── models.py         # Pydantic models สำหรับข้อมูล Node 3
 │   └── __init__.py
@@ -37,8 +37,12 @@ src/slm_auto_config/
 {
   "messages": [
     {
+      "role": "system",
+      "content": "You are an expert document classifier."
+    },
+    {
       "role": "user",
-      "content": "You are an expert... The available categories are: A, B... Text: [CONTENT]"
+      "content": "Your task is to identify... Text: [CONTENT]"
     },
     {
       "role": "assistant",

@@ -1,30 +1,30 @@
 # NODE 5: FINE-TUNING & EVALUATION - CHECKPOINT
 
 **Status**: `DONE` (Implemented & Environment Ready)  
-**Last Updated**: 2026-04-14
+**Last Updated**: 2026-04-16
 
 ## 🎯 Purpose
-Node 5 คือสะพานเชื่อมระหว่างการเตรียมตั้งค่า (Node 4) และการนำโมเดลไปรันจริงบน GPU (Vast.ai) โดยรับผิดชอบตั้งแต่การติดตั้งสภาพแวดล้อม การสั่งรันแบบอัตโนมัติ ไปจนถึงการวิเคราะห์ผลลัพธ์และสรุปรายงานเป็นรูปเล่ม
+Node 5 คือสะพานเชื่อมระหว่างการเตรียมตั้งค่า (Node 4) และการนำโมเดลไปรันจริงบน GPU (Vast.ai) โดยรับผิดชอบตั้งแต่การติดตั้งสภาพแวดล้อม การสั่งรันแบบอัตโนมัติ ไปจนถึงการวิเคราะห์ผลลัพธ์เบื้องต้น และส่งไม้ต่อให้ Node 7 สำหรับการทำ Detailed Evaluation
 
 ## 🛠 Architecture & Capabilities
 
 Node 5 ถูกออกแบบให้รองรับการทำงานแบบ Remote-First:
 - **ExecutorGenerator**: สร้างสคริปต์สั่งการ (.sh) ที่พกพาไปรันบน Vast.ai ได้ทันที
 - **MetricsAnalyser**: ตัวสแกนหา "โมเดลที่ดีที่สุด" จากหลายๆ Trial และสรุปค่า Metrics ให้เป็นมาตรฐาน
-- **Visualizer**: ระบบวาดกราฟสถิติ, Confusion Matrix และสร้าง PDF Training Report
+- **Visualizer (Bridge)**: เชื่อมโยงผลลัพธ์จาก Vast.ai กลับมายังเครื่อง Local เพื่อออกรายงาน
 
 ### Key Features:
 1.  **Vast.ai Optimization**:
-    - `setup_vast.sh`: ติดตั้ง Oumi และ Dependencies ทั้งหมดบนคลาวด์ในคลิกเดียว
+    - `setup_vast.sh`: ติดตั้ง Oumi และ Dependencies ทั้งหมดบนคลาวด์ในคลิกเดียว (Updated to lock Gradio and Optimum versions)
     - `oumi[gpu]`: ติดตั้งเวอร์ชันรองรับ GPU เป็นค่าเริ่มต้น
 2.  **Smart Sync with rsync**:
-    - `sync_to_vast.sh` / `sync_from_vast.sh`: ใช้เทคโนโลยี `rsync` เพื่อส่งข้อมูลก้อนใหญ่ (Model Weights) ได้อย่างรวดเร็วและสามารถส่งต่อจากจุดที่ค้างได้
+    - `sync_to_vast.sh` / `sync_from_vast.sh`: ใช้เทคโนโลยี `rsync` เพื่อส่งข้อมูลก้อนใหญ่ (Model Weights) ได้อย่างรวดเร็ว
 3.  **Cyclic Loop Support (Auto Mode)**:
     - รองรับการคัดเลือก **Best Trial** จากการทำ Optuna Tuning อัตโนมัติ
     - จดจำตัวเลือกโมเดลที่ดีที่สุดเพื่อส่งไม้ต่อให้ Node 6 (Inference)
-4.  **Executive Reporting**:
-    - **PDF Report**: สรุปผลการเทรนอย่างละเอียดพร้อมกราฟเปรียบเทียบ
-    - **Separate Testing**: รัน `oumi evaluate` บนชุด Test Set (10%) ที่แยกไว้ เพื่อยืนยันความสามารถของโมเดลกับข้อมูลจริงภายนอก
+4.  **Reporting Flow**:
+    - **Initial Check**: ตรวจสอบค่า Loss และ Metrics พื้นฐานจากการเทรน
+    - **Integration with Node 7**: ส่งข้อมูล `predictions.jsonl` ให้ Node 7 เพื่อทำการคำนวณ Confusion Matrix และออกรายงาน PDF ที่ละเอียดกว่าเดิม
 
 ## 📂 File Structure
 ```text
