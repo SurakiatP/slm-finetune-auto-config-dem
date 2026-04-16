@@ -50,8 +50,14 @@ gradio_cached_examples/
 .DS_Store
 Thumbs.db
 
-# Exclude broad log files but keep MD docs
+# ----------------------------------------------------------------------------
+# Logs & Docs
+# ----------------------------------------------------------------------------
 *.log
-!README.md
-!*_CHECKPOINT.md
 *.md
+
+# Whitelist important documentation
+!README.md
+!VAST_AI_DEPLOYMENT_GUIDE.md
+!AGENT_RULES.md
+!*_CHECKPOINT.md
