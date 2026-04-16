@@ -24,7 +24,7 @@ class ExecutorGenerator:
             "#!/bin/bash",
             f"echo '🚀 Starting Manual Training for {self.run_id}'",
             f"oumi train -c runs/{self.run_id}/configs/train.yaml 2>&1 | tee runs/{self.run_id}/logs/train.log",
-            f"echo '✅ Training Complete. Log saved to runs/{self.run_id}/logs/train.log'"
+            "echo '✅ Training Complete. Log saved to runs/{self.run_id}/logs/train.log'"
         ]
         self._write_script("run_train.sh", train_sh)
 
@@ -33,7 +33,7 @@ class ExecutorGenerator:
             "#!/bin/bash",
             f"echo '🚀 Starting Auto Tuning for {self.run_id}'",
             f"oumi tune -c runs/{self.run_id}/configs/tune.yaml 2>&1 | tee runs/{self.run_id}/logs/tune.log",
-            f"echo '✅ Tuning Complete. Log saved to runs/{self.run_id}/logs/tune.log'"
+            "echo '✅ Tuning Complete. Log saved to runs/{self.run_id}/logs/tune.log'"
         ]
         self._write_script("run_tune.sh", tune_sh)
 
@@ -42,7 +42,7 @@ class ExecutorGenerator:
             "#!/bin/bash",
             f"echo '🔍 Starting Evaluation for {self.run_id} on Test Set'",
             f"oumi evaluate -c runs/{self.run_id}/configs/train.yaml --dataset_path runs/{self.run_id}/data/test.jsonl 2>&1 | tee runs/{self.run_id}/logs/eval.log",
-            f"echo '✅ Evaluation Complete. Log saved to runs/{self.run_id}/logs/eval.log'"
+            "echo '✅ Evaluation Complete. Log saved to runs/{self.run_id}/logs/eval.log'"
         ]
         self._write_script("run_eval.sh", eval_sh)
 
@@ -60,7 +60,7 @@ class ExecutorGenerator:
             "",
             "echo '📊 Calculating Final Metrics (Node 7)...'",
             f"python src/slm_auto_config/node7/run_eval.py {self.run_id}",
-            f"echo '✅ Final Pipeline Step Complete. Review results in runs/{self.run_id}/evaluation/'"
+            "echo '✅ Final Pipeline Step Complete. Review results in runs/{self.run_id}/evaluation/'"
         ]
         self._write_script("run_final_train.sh", final_sh)
 

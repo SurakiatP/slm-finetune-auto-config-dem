@@ -30,14 +30,21 @@ class ClassificationInferencer(BaseInferencer):
             self.model = PeftModel.from_pretrained(self.model, adapter_path)
         self.parser = ResponseParser()
 
-    def _clean_label(self, label: str) -> str:
-        """Standardizes label naming (Internal helper)."""
+    def _clean_label(self, label: str, valid_labels: List[str]) -> str:
+        """Standardizes label naming dynamically using fuzzy match against valid_labels."""
         if not label: return "unknown"
         label = label.strip().lower()
-        if "nda" in label or "ความลับ" in label: return "ข้อตกลงรักษาความลับ (NDA)"
-        if "จ้างงาน" in label: return "สัญญาจ้างงาน"
-        if "เช่า" in label: return "สัญญาเช่า"
-        if "จัดซื้อ" in label or "จัดจ้าง" in label: return "เอกสารจัดซื้อจัดจ้าง"
+        
+        # 1. Exact or strict lower match
+        for v in valid_labels:
+            if label == v.lower():
+                return v
+                
+        # 2. Substring match
+        for v in valid_labels:
+            if label in v.lower() or v.lower() in label:
+                return v
+                
         return "unknown"
 
     def predict(self, text: str, **kwargs) -> InferenceResponse:
@@ -50,16 +57,15 @@ class ClassificationInferencer(BaseInferencer):
         
         labels_str = ", ".join(labels_list)
         
-        # 🎯 MATCH TRAINING FORMAT: Combine role, task, and text into ONE User message.
-        # This matches the structure in train.jsonl
-        full_user_content = (
-            f"{role} {task} The available categories are: {labels_str}. "
-            f"Return the result in a valid JSON format with a single 'label' key.\n\n"
-            f"Text: {text}"
+        # 1. Apply Chat Template using separated System and User messages
+        instructions = (
+            f"{task} The available categories are: {labels_str}. "
+            f"Return the result in a valid JSON format with a single 'label' key."
         )
         
         messages = [
-            {"role": "user", "content": full_user_content}
+            {"role": "system", "content": role},
+            {"role": "user", "content": f"{instructions}\n\nText: {text}"}
         ]
         
         full_prompt = self.tokenizer.apply_chat_template(
@@ -104,7 +110,7 @@ class ClassificationInferencer(BaseInferencer):
         predicted_label = parsed_data.get("label", "unknown")
         
         # Apply normalization (mapping "NDA" -> "ข้อตกลงรักษาความลับ (NDA)")
-        normalized_label = self._clean_label(predicted_label)
+        normalized_label = self._clean_label(predicted_label, labels_list)
         
         return InferenceResponse(
             label=normalized_label,

@@ -71,7 +71,6 @@ class BaseConfigGenerator(ABC):
                 "lr_scheduler_type": training.lr_scheduler_type,
                 "logging_steps": training.logging_steps,
                 "eval_steps": training.eval_steps,
-                "gradient_checkpointing": training.gradient_checkpointing,
                 "eval_strategy": "steps",
                 "output_dir": "runs/{}/training/output".format(self.run_id),
                 "save_final_model": True

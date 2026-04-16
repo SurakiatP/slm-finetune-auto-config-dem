@@ -13,26 +13,26 @@ from slm_auto_config.node5.models import EvaluationMetrics, LabelMetric
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def clean_label(label: str) -> str:
-    """Standardizes label naming to match canonical categories."""
+def clean_label(label: str, valid_labels: list) -> str:
+    """Standardizes label naming dynamically using fuzzy match against valid_labels."""
     if not label: 
         return "unknown"
     
     label = label.strip().lower()
     
-    # Mapping logic for legal categories
-    if "nda" in label or "ความลับ" in label:
-        return "ข้อตกลงรักษาความลับ (NDA)"
-    if "จ้างงาน" in label:
-        return "สัญญาจ้างงาน"
-    if "เช่า" in label:
-        return "สัญญาเช่า"
-    if "จัดซื้อ" in label or "จัดจ้าง" in label:
-        return "เอกสารจัดซื้อจัดจ้าง"
+    # 1. Exact match
+    for v in valid_labels:
+        if label == v.lower():
+            return v
+            
+    # 2. Substring match
+    for v in valid_labels:
+        if label in v.lower() or v.lower() in label:
+            return v
         
     return "unknown"
 
-def parse_model_response(response_str: str) -> str:
+def parse_model_response(response_str: str, valid_labels: list) -> str:
     """
     Tries to extract the 'label' from the model's response string.
     Handles raw JSON or plain text matches.
@@ -57,7 +57,7 @@ def parse_model_response(response_str: str) -> str:
                 extracted = line.split('"label":')[-1].replace('"', '').replace(',', '').strip()
                 break
             
-    return clean_label(extracted)
+    return clean_label(extracted, valid_labels)
 
 def run_evaluation(run_id: str):
     logger.info(f"📊 Starting Node 7 Evaluation for run: {run_id}")
@@ -72,6 +72,16 @@ def run_evaluation(run_id: str):
     ground_truth = []
     predictions = []
     
+    # Load valid labels from data report
+    data_report_path = f"runs/{run_id}/data/data_report.json"
+    valid_labels = []
+    if os.path.exists(data_report_path):
+        try:
+            with open(data_report_path, 'r', encoding='utf-8') as rf:
+                valid_labels = json.load(rf).get("labels", [])
+        except Exception as e:
+            logger.warning(f"Could not load valid labels from data_report: {e}")
+
     # Oumi 0.7 Inference output is a JSONL of Conversations
     with open(preds_path, 'r', encoding='utf-8') as f:
         for line in f:
@@ -88,13 +98,13 @@ def run_evaluation(run_id: str):
                 gt_val = "unknown"
                 for msg in msgs[1:-1]: # Look in between prompt and last response
                     if msg["role"] == "assistant":
-                        gt_val = parse_model_response(msg["content"])
+                        gt_val = parse_model_response(msg["content"], valid_labels)
                         break
                 ground_truth.append(gt_val)
                 
                 # Extract Prediction (the very last message)
                 if len(msgs) > 0 and msgs[-1]["role"] == "assistant":
-                    pred_val = parse_model_response(msgs[-1]["content"])
+                    pred_val = parse_model_response(msgs[-1]["content"], valid_labels)
                     predictions.append(pred_val)
                 else:
                     predictions.append("unknown")

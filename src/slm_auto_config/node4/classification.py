@@ -26,5 +26,5 @@ class ClassificationConfigGenerator(BaseConfigGenerator):
             "learning_rate": TuningParamRange(type="loguniform", min=1e-5, max=5e-4),
             "lora_r": TuningParamRange(type="categorical", values=[4, 8, 16, 32]),
             "lora_alpha": TuningParamRange(type="categorical", values=[8, 16, 32, 64]),
-            "per_device_train_batch_size": TuningParamRange(type="categorical", values=[1, 2])
+            "per_device_train_batch_size": TuningParamRange(type="categorical", values=[1, 2, 4])
         })

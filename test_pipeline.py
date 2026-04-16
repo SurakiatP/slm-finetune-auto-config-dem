@@ -10,9 +10,9 @@ from slm_auto_config.node4 import get_config_generator, ModelParams, PeftParams,
 from slm_auto_config.node5 import ExecutorGenerator
 
 def main():
-    run_id = "test_qwen_3b_001"
+    run_id = "test_full_pipeline_001"
     synthetic_path = "synthetic_data.json"
-    model_name = "Qwen/Qwen2.5-3B-Instruct"
+    model_name = "Qwen/Qwen2.5-0.5B-Instruct"
     
     print(f"Starting Full Pipeline Test: {run_id}")
     

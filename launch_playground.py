@@ -49,7 +49,7 @@ def discover_adapter_path(run_id: str) -> str:
 def main():
     parser = argparse.ArgumentParser(description="Launch the SLM Legal Classification Playground.")
     parser.add_argument("--run_id", type=str, required=True, help="The Run ID folder to use")
-    parser.add_argument("--base_model", type=str, default="Qwen/Qwen2.5-3B-Instruct", help="HuggingFace path for base model")
+    parser.add_argument("--base_model", type=str, default="Qwen/Qwen2.5-0.5B-Instruct", help="HuggingFace path for base model")
     parser.add_argument("--share", action="store_true", default=True, help="Create a public share link")
     
     args = parser.parse_args()

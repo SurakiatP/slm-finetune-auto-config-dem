@@ -16,16 +16,15 @@ class PeftParams(BaseModel):
 class TrainingParams(BaseModel):
     trainer_type: str = "TRL_SFT"
     learning_rate: float = 1e-4
-    per_device_train_batch_size: int = 1
-    gradient_accumulation_steps: int = 8
+    per_device_train_batch_size: int = 2
+    gradient_accumulation_steps: int = 4
     num_train_epochs: int = 3
     warmup_ratio: float = 0.1
     weight_decay: float = 0.01
-    optimizer: str = "paged_adamw_32bit"
+    optimizer: str = "adamw_torch"
     lr_scheduler_type: str = "cosine"
     logging_steps: int = 10
     eval_steps: int = 50
-    gradient_checkpointing: bool = True
     save_total_limit: int = 1
     early_stopping_patience: int = 3
 

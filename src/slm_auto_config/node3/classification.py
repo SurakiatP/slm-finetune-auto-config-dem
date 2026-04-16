@@ -27,16 +27,15 @@ class ClassificationSplitter(BaseSplitter):
 
     def convert_to_oumi(self, data: List[dict], labels: List[str]) -> List[dict]:
         formatted_labels = ", ".join(labels)
-        prompt_prefix = self.instruction_template.format(
-            role=self.role,
-            task=self.task,
-            labels=formatted_labels
-        )
         
         oumi_data = []
         for item in data:
             messages = [
-                OumiMessage(role="user", content=f"{prompt_prefix}\n\nText: {item['text']}"),
+                OumiMessage(role="system", content=self.role),
+                OumiMessage(
+                    role="user", 
+                    content=f"{self.task} The available categories are: {formatted_labels}. Return the result in a valid JSON format with a single 'label' key.\n\nText: {item['text']}"
+                ),
                 OumiMessage(role="assistant", content=json.dumps({"label": item['label']}, ensure_ascii=False))
             ]
             example = OumiExample(messages=messages)
