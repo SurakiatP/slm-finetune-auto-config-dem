@@ -53,6 +53,5 @@ Thumbs.db
 # Exclude broad log files but keep MD docs
 *.log
 !README.md
-!VAST_AI_DEPLOYMENT_GUIDE.md
-!AGENT_RULES.md
 !*_CHECKPOINT.md
+*.md
