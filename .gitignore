@@ -58,6 +58,4 @@ Thumbs.db
 
 # Whitelist important documentation
 !README.md
-!VAST_AI_DEPLOYMENT_GUIDE.md
-!AGENT_RULES.md
 !*_CHECKPOINT.md
