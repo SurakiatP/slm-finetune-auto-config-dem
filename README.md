@@ -1,23 +1,37 @@
-# SLM Fine-tune Auto Config (Classification Demo) 🚀
+# SLM Auto-Config Pipeline 🚀
 
-This repository contains a modular pipeline for fine-tuning Small Language Models (SLMs) on Thai legal document classification tasks. It leverages **Oumi** for the training execution and **Distilabel** for synthetic data generation.
+ระบบจัดการ Pipeline สำหรับการทำ Fine-tuning Small Language Models (SLMs) ตั้งแต่การนำเข้าข้อมูล (Data Intake) จนถึงชุดเตรียมข้อมูลสังเคราะห์ (SDG) และ Oumi-formatted datasets แบบอัตโนมัติ
 
-## 🎯 Key Features
-- **Auto-Config Generation**: Automatically creates Oumi-compatible YAML configs for SFT and HP-Tuning.
-- **Interchangeable Models**: Optimized for `Qwen2.5-0.5B-Instruct` for fast and light inference.
-- **Dynamic Labeling**: Inference and evaluation snippets are domain-agnostic; they adapt to your dataset labels automatically using fuzzy matching.
-- **Interative Playground**: A Gradio-based interface to test your fine-tuned adapters in real-time.
-- **Vast.ai Ready**: Includes automation scripts for syncing data and executing training on remote GPU clusters.
+## 🌟 Key Features
+- **Node 1 (Intake)**: รับไฟล์ CSV, JSON, JSONL พร้อมระบบ Auto-mapping และ Quarantine ข้อมูลเสีย
+- **Node 2 (SDG)**: สร้างข้อมูลสังเคราะห์คุณภาพสูงด้วย Meta-Prompting และ Semantic Deduplication (Distilabel + FAISS)
+- **Node 3 (Split)**: แบ่งชุดข้อมูล Train/Val/Test พร้อมแปลงเป็นฟอร์แมต Oumi Chat Template ทันที
+- **One-Command Orchestration**: รันทุกขั้นตอน Node 1-3 ผ่านทาง CLI ในคำสั่งเดียว
 
-## 📂 Repository Overview
-- `src/slm_auto_config/node3`: Data Splitting & Conversion (Standard Chat Template).
-- `src/slm_auto_config/node4`: Hyperparameter & Config Generation (Oumi YAMLs).
-- `src/slm_auto_config/node5`: Training Orchestration & Best-Trial Selection.
-- `src/slm_auto_config/node6`: Interactive Inference Playground (Gradio).
-- `src/slm_auto_config/node7`: Detailed Evaluation & PDF Reporting.
+## 🚀 Quick Start
 
-## 🚀 Getting Started
-Check out **[VAST_AI_DEPLOYMENT_GUIDE.md](file:///VAST_AI_DEPLOYMENT_GUIDE.md)** for step-by-step instructions on training and deploying to the cloud.
+### 1. Setup Environment
+ติดตั้ง Dependencies และเตรียมไฟล์ API Key ใน `.env`:
+```powershell
+pip install -r requirements.txt
+cp .env.example .env  # กรอก OPENROUTER_API_KEY
+```
+
+### 2. Run the Full Pipeline
+เริ่มสร้าง Dataset สำหรับเทรนโหมด Classification ได้จากเครื่องคุณ:
+```powershell
+python run_full_pipeline.py --task "คำอธิบายงานของคุณ" --input "data/raw/seed.csv" --count 100
+```
+
+## 📂 Project Structure
+- `src/slm_auto_config/`: Core Logic (แบ่งตาม Node 1-7)
+- `tests/`: ชุดทดสอบระบบแยกตาม Node (Unit Tests)
+- `runs/`: โฟลเดอร์เก็บผลลัพธ์จากการรัน (Ignore ใน Git)
+- `run_full_pipeline.py`: ตัวสั่งการหลัก (Frontend Pipeline)
+- `launch_playground.py`: หน้าจอทดลองโมเดลหลังเทรนเสร็จ (Node 6)
+
+## ☁️ Deployment
+สำหรับขั้นตอนการเทรนบน GPU (Node 4-5) ให้ศึกษาที่ [VAST_AI_DEPLOYMENT_GUIDE.md](VAST_AI_DEPLOYMENT_GUIDE.md)
 
 ---
-*Maintained by Park - Part of the NECTEC AI Engineering workflow.*
+*Maintained by Park - Advanced SLM Fine-tuning Workflow.*
