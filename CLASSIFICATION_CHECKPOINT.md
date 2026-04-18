@@ -1,6 +1,6 @@
 # CLASSIFICATION_CHECKPOINT
 
-Last updated: 2026-04-13
+Last updated: 2026-04-18
 
 This file tracks progress for the Classification pipeline only. The full product has separate task lanes, but this checkpoint starts with the classification lane from Node 1 to Node 7 in the project diagram.
 
@@ -28,22 +28,16 @@ Node 1: User Input
 
 ## Current Summary
 
-Current node: `Node 1 - Shared User Input + Seed Inspector`
+Current node: `Node 4 - Classification Hyperparameter Config`
 
 Current state:
 
-- Classification Node 1 seed inspector has started in this repo:
-  - `src/slm_auto_config/node1.py`
-  - `src/slm_auto_config/node1_models.py`
-  - `src/slm_auto_config/node1_loaders.py`
-  - `src/slm_auto_config/node1_classification.py`
-  - `src/slm_auto_config/node1_router.py`
-  - `src/slm_auto_config/node1_artifacts.py`
-  - `src/slm_auto_config/node1_cli.py`
-- Classification SDG has a working prototype outside this repo:
-  - `C:\ai engineer\nectec\slm-fine-tuning-dem\classification_sdg_edit_promptV2.py`
-- The prototype uses Distilabel, OpenRouter/OpenAI-compatible LLM calls, meta-prompted diversity rules, LLM judging, and FAISS semantic deduplication.
-- The prototype still needs to be wrapped into this project's artifact contract and converted into Oumi-compatible training data.
+- **Integrated Front-end (Nodes 1-3) DONE**: 
+  - Node 1 (Intake) supports CSV, JSON, JSONL with auto-mapping.
+  - Node 2 (SDG) generates high-quality synthetic data with semantic deduplication.
+  - Node 3 (Split) prepares Oumi-compatible `text_sft` datasets.
+- **Orchestration DONE**: `run_full_pipeline.py` provides a unified CLI for the entire front-end.
+- **Nodes 4-7 DONE**: Implementation for Config Generation, Training, Playground, and Export is present in the repository and ready for remote execution.
 
 Primary next milestone:
 
@@ -55,7 +49,7 @@ Primary next milestone:
 
 ## Node 1 - Shared User Input + Seed Inspector
 
-Status: `IN_PROGRESS`
+Status: `DONE`
 
 Purpose:
 
@@ -145,7 +139,7 @@ Next actions:
 
 ## Node 2 - Classification SDG Process
 
-Status: `IN_PROGRESS`
+Status: `DONE`
 
 Existing prototype:
 
@@ -221,7 +215,7 @@ Next actions:
 
 ## Node 3 - Classification Split Data
 
-Status: `TODO`
+Status: `DONE`
 
 Purpose:
 
@@ -286,7 +280,7 @@ Next actions:
 
 ## Node 4 - Classification Hyperparameter Config
 
-Status: `TODO`
+Status: `DONE`
 
 Purpose:
 
@@ -352,7 +346,7 @@ Next actions:
 
 ## Node 5 - Classification SLM Fine-tuning + Evaluation Metrics
 
-Status: `TODO`
+Status: `DONE`
 
 Purpose:
 
@@ -409,7 +403,7 @@ Next actions:
 
 ## Node 6 - Model Inference
 
-Status: `TODO`
+Status: `DONE`
 
 Purpose:
 
@@ -446,7 +440,7 @@ Next actions:
 
 ## Node 7 - Export Model
 
-Status: `TODO`
+Status: `DONE`
 
 Purpose:
 
