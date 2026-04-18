@@ -35,11 +35,19 @@ class BaseSplitter(ABC):
     def execute_split(self, synthetic_raw: List[dict], seed_raw: List[dict], val_ratio: float, test_ratio: float):
         """Perform the actual split logic (Stratified, Random, etc.)."""
         pass
-
     def split_data(self, synthetic_path: str, seed_path: Optional[str] = None, val_ratio: float = 0.1, test_ratio: float = 0.1):
         """Universal split orchestration."""
-        synthetic_raw = load_json(synthetic_path)
-        seed_raw = load_json(seed_path) if seed_path else []
+        from ..utils import load_json, load_jsonl, save_jsonl
+        
+        def _load_data_flexibly(path: Optional[str]) -> List[dict]:
+            if not path or not os.path.exists(path):
+                return []
+            if path.lower().endswith('.jsonl'):
+                return load_jsonl(path)
+            return load_json(path)
+            
+        synthetic_raw = _load_data_flexibly(synthetic_path)
+        seed_raw = _load_data_flexibly(seed_path)
         
         if not synthetic_raw and not seed_raw:
             logger.error(f"[{self.task_type}] No data found to split.")
