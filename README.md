@@ -1,23 +1,23 @@
-# SLM Fine-tune Auto Config (Classification Demo) 🚀
+# SLM Auto-Config Pipeline 🚀
 
-This repository contains a modular pipeline for fine-tuning Small Language Models (SLMs) on Thai legal document classification tasks. It leverages **Oumi** for the training execution and **Distilabel** for synthetic data generation.
+ระบบอัตโนมัติสำหรับการทำ Fine-tuning Small Language Models (SLMs) สำหรับงานภาษาไทยแบบครบวงจร (End-to-End) ตั้งแต่การนำเข้าข้อมูลดิบไปจนถึงการส่งออกโมเดลที่พร้อมใช้งาน
 
-## 🎯 Key Features
-- **Auto-Config Generation**: Automatically creates Oumi-compatible YAML configs for SFT and HP-Tuning.
-- **Interchangeable Models**: Optimized for `Qwen2.5-0.5B-Instruct` for fast and light inference.
-- **Dynamic Labeling**: Inference and evaluation snippets are domain-agnostic; they adapt to your dataset labels automatically using fuzzy matching.
-- **Interative Playground**: A Gradio-based interface to test your fine-tuned adapters in real-time.
-- **Vast.ai Ready**: Includes automation scripts for syncing data and executing training on remote GPU clusters.
+## 🎯 จุดเด่นของโปรเจกต์
+- **Full Automation**: เชื่อมต่อ Node 1 (Intake), Node 2 (SDG) และ Node 3 (Formatting) เข้าด้วยกันเพื่อสร้าง Dataset พร้อมเทรนในคำสั่งเดียว
+- **Modern Architecture**: ใช้ **Distilabel** สำหรับสร้างข้อมูลสังเคราะห์และ **Oumi** สำหรับการเทรนที่รวดเร็วและมีประสิทธิภาพ
+- **Smart Validation**: มีระบบตรวจเช็คและทำความสะอาดข้อมูล (Data Cleaning) ก่อนเข้าสู่กระบวนการเทรน
+- **Vast.ai Integrated**: ออกแบบมาเพื่อทำงานร่วมกับ GPU Cluster บนระบบ Cloud ได้ทันที
 
-## 📂 Repository Overview
-- `src/slm_auto_config/node3`: Data Splitting & Conversion (Standard Chat Template).
-- `src/slm_auto_config/node4`: Hyperparameter & Config Generation (Oumi YAMLs).
-- `src/slm_auto_config/node5`: Training Orchestration & Best-Trial Selection.
-- `src/slm_auto_config/node6`: Interactive Inference Playground (Gradio).
-- `src/slm_auto_config/node7`: Detailed Evaluation & PDF Reporting.
+## 🛠️ โครงสร้างระบบ (Pipeline Nodes)
+- `Node 1-3`: **Data Front-end** (Intake, Synthetic Generation, Oumi Formatting)
+- `Node 4-5`: **Training Engine** (Hyperparameter Tuning & SLM SFT)
+- `Node 6-7`: **Deployment** (Gradio Playground & Multi-format Export)
 
-## 🚀 Getting Started
-Check out **[VAST_AI_DEPLOYMENT_GUIDE.md](file:///VAST_AI_DEPLOYMENT_GUIDE.md)** for step-by-step instructions on training and deploying to the cloud.
+## 🚀 เริ่มต้นใช้งานด่วน
+คุณสามารถรันกระบวนการเตรียมข้อมูลทั้งหมดได้ด้วยคำสั่งเดียว:
+```powershell
+python run_full_pipeline.py --task "คัดแยกประเภทเอกสารสัญญา" --input "data/raw/your_data.csv"
+```
 
 ---
 *Maintained by Park - Part of the NECTEC AI Engineering workflow.*
