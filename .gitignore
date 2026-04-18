@@ -31,6 +31,7 @@ wheels/
 runs/
 # We ignore the raw synthetic dataset as it might be large/sensitive.
 synthetic_data.json
+tests/
 
 # ----------------------------------------------------------------------------
 # Environments & Tools

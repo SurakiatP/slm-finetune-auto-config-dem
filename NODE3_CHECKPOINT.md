@@ -1,7 +1,7 @@
 # NODE 3: SPLIT DATA - CHECKPOINT
 
-**Status**: `DONE` (Implemented & Refactored)  
-**Last Updated**: 2026-04-16
+**Status**: `DONE` (Fully Integrated End-to-End)  
+**Last Updated**: 2026-04-18
 
 ## 🎯 Purpose
 Node 3 ทำหน้าที่รับข้อมูลจาก Node 2 (Synthetic Data) และ Node 1 (Seed Data) เพื่อทำการแบ่งข้อมูลเป็นชุด Train, Validation, และ Test พร้อมทั้งแปลงให้อยู่ในรูปแบบ Oumi `text_sft` (Conversation JSONL) โดยใช้มาตรฐาน **Chat Template** (System/User/Assistant) เพื่อประสิทธิภาพสูงสุดของโมเดล Instruct
@@ -17,6 +17,8 @@ Node 3 ทำหน้าที่รับข้อมูลจาก Node 2 (S
 2.  **Stratified Splitting**: ใช้ `scikit-learn` เพื่อรักษาความสมดุลของหมวดหมู่ (Label Balance) ในทุกๆ ชุดข้อมูล (Train/Val/Test)
 3.  **Seed Data Priority**: ปฏิบัติตามกฎ `AGENT_RULES.md` โดยใช้ Seed Data ที่เป็น Ground Truth สำหรับชุด Validation และ Test เป็นลำดับแรก
 4.  **Standard Chat Template**: เลิกใช้การยุบรวม Prompt (Flattening) และเปลี่ยนมาใช้แยกบทบาท: `system` (Persona), `user` (Instruction + Content), และ `assistant` (Target)
+5.  **Multi-format Bridge**: เพิ่มฟังก์ชัน `_load_data_flexibly` ทำให้อ่านไฟล์ได้ทั้ง `.json` และ `.jsonl` เพื่อรับช่วงต่อจาก Node 1 ได้ทันที
+6.  **Pipeline Orchestration**: เชื่อมต่อเข้ากับ `run_full_pipeline.py` รันต่อเนื่องจาก Node 1 ➡️ 2 ➡️ 3 ในคำสั่งเดียว
 
 ## 📂 File Structure
 ```text

@@ -17,6 +17,23 @@ def load_json(path: str) -> List[dict]:
         logger.error(f"Error loading {path}: {e}")
         return []
 
+def load_jsonl(path: str) -> List[dict]:
+    """Loads a JSONL file into a list of dicts."""
+    if not path or not os.path.exists(path):
+        logger.warning(f"File not found: {path}")
+        return []
+    rows = []
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    rows.append(json.loads(line))
+        return rows
+    except Exception as e:
+        logger.error(f"Error loading JSONL from {path}: {e}")
+        return []
+
 def save_jsonl(data: List[dict], path: str):
     """Saves a list of dicts to a JSONL file."""
     os.makedirs(os.path.dirname(path), exist_ok=True)

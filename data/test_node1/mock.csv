@@ -1,0 +1,6 @@
+Document Content , Doc_Class,Extra_Info
+Valid CSV text,Category A,Note 1
+Valid CSV text 2,Category B,
+Missing label text,,Note 2
+,Category A,Note 3
+Valid CSV text 3,Category A,

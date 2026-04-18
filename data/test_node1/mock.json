@@ -1,0 +1,1 @@
+[{"input": "Valid JSON text 1", "target": "Category B"}, {"input": "Valid JSON text 2", "target": "Category A"}, {"input": "Missing target"}, {"target": "Category B"}]
